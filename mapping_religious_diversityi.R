@@ -19,12 +19,24 @@ div <- select(s.census, fips, test)
 div$fips <- sprintf("%05d",div$fips)
 map <- left_join(counties, div, by = "fips")
 
+m2 <- map %>% filter(div > .25)
 
-leaflet(map) %>%
+
+myLabelFormat = function(..., reverse_order = FALSE){ 
+  if(reverse_order){ 
+    function(type = "numeric", cuts){ 
+      cuts <- sort(cuts, decreasing = T)
+    } 
+  }else{
+    labelFormat(...)
+  }
+}
+
+leaflet(m2) %>%
   addTiles() %>%
   addPolygons(stroke = TRUE, weight = 1, smoothFactor = 0.3, fillOpacity = 1, color = "black",
-              fillColor = ~pal(map$test),
-              label = ~paste0(NAME, ": ", formatC(map$test, big.mark = ","))) %>%
-  addLegend(pal = pal, values = map$test, opacity = 1.0)
+              fillColor = ~pal(m2$div),
+              label = ~paste0(NAME, ": ", formatC(m2$div, big.mark = ","))) %>%
+  addLegend(pal = pal, values = rev(m2$div), opacity = 1.0, labFormat = myLabelFormat(reverse_order = T)) 
 
 
