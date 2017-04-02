@@ -1,6 +1,7 @@
+
+library(car)
+library(haven)
 library(spdplyr)
-
-
 
 counties <- rgdal::readOGR("counties.geojson", "OGRGeoJSON")
 pal <- colorNumeric("viridis", NULL)
@@ -16,8 +17,10 @@ s.census$test <- s.census$test/1308.69
 
 counties <- counties %>% mutate(fips = paste0(STATE, COUNTY))
 div <- select(s.census, fips, test)
+
 div$fips <- sprintf("%05d",div$fips)
 map <- left_join(counties, div, by = "fips")
+
 
 m2 <- map %>% filter(div > .25)
 
@@ -37,6 +40,6 @@ leaflet(m2) %>%
   addPolygons(stroke = TRUE, weight = 1, smoothFactor = 0.3, fillOpacity = 1, color = "black",
               fillColor = ~pal(m2$div),
               label = ~paste0(NAME, ": ", formatC(m2$div, big.mark = ","))) %>%
-  addLegend(pal = pal, values = rev(m2$div), opacity = 1.0, labFormat = myLabelFormat(reverse_order = T)) 
-
+  addLegend(pal = pal, values = rev(m2$div), opacity = 1.0, labFormat = myLabelFormat(reverse_order = T)) %>% 
+  setView(-98.690940, 39.651426, zoom = 4)
 
