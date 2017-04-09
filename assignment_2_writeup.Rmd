@@ -1,0 +1,111 @@
+---
+title: "Assignment 2"
+author: "YOUR NAME"
+date: "April 10, 2017"
+output: html_document
+---
+
+
+```{r message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(car)
+library(ggmap)
+library(leaflet)
+library(ggcorrplot)
+library(dotwhisker)
+library(plotly)
+library(highcharter)
+library(readr)
+```
+
+
+
+1. Use the following sytnax to load a dataset of profit and loss statements for EIU's Academic Departments
+
+```{r message=FALSE, warning=FALSE}
+profit <- read.csv("https://raw.githubusercontent.com/ryanburge/profitloss/master/all.csv")
+```
+
+What department had the highest personnel expenses in 2012-2013?
+Visualize personnel expenses across all departments in 2012-2013. 
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+Now, tell me what department posted the largest profit across the entire time period? 
+Visualize that. 
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+
+2. Let's take a look at doing some correlations. Read in the following dataset:
+Here's the codebook: https://dataverse.harvard.edu/file.xhtml?fileId=3004423&version=1.2
+
+```{r message=FALSE, warning=FALSE}
+cces <- read.csv(url("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/cces.csv"))
+```
+
+Find the variable that reports personal income and education level and run a simple correlation of the two. 
+Then put together a scatterplot. Is there a relationship between the two variables in this scatterplot? 
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+Now, pick six variables from your dataset that might be related to each other in a correlation. 
+Create a smaller dataset of just those variables. Then use ggcorrplot to visualize the correlation coefficients. 
+What do you see? What is related? 
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+3. Here we will look at mean, median, and standard deviation. Load in this dataset of ACT scores in Wisconsin.  
+
+```{r message=FALSE, warning=FALSE}
+act <- read.csv(url("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/act.csv"))
+```
+
+What's the mean? What's the median? Why the big difference? Visualize the distribution. 
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+Now, find the standard deviation. 
+Remember the 68-95-99 rule? If I said that a random student's ACT score was 30, how rare is that? Show your work!
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+4. Regression Time. Load up the Simon dataset that we started this all with. 
+Here's the link to the codebook: http://opensiuc.lib.siu.edu/cgi/viewcontent.cgi?article=1010&context=ppi_statepolls
+
+```{r message=FALSE, warning=FALSE}
+simon <- read.csv(url("http://goo.gl/exQA14"))
+```
+
+There's a question in there about expanded gambling in the state. That's going to be our DV. Make sure to clean this variable first!!
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+Now, I will let you pick four other variables in the dataset that could potentially predict support or opposition for expanded gambling. Clean those variables. 
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+Now, it is time to regress. Do the regression analysis. Then visualize that with the dotwhisker package. 
+
+```{r message=FALSE, warning=FALSE}
+PUT YOUR SYNTAX HERE
+```
+
+Interpret your output. 
