@@ -8,3 +8,4 @@ ggplot(un, aes(x=year, y=count, label = type, fill = type)) +
 theme(legend.position="bottom") + theme(legend.title = element_blank()) + 
   guides(col = guide_legend(reverse = TRUE)) + xlab("Year") + ylab("Number of Votes")
 
+ggsave(file="moses.png", type = "cairo-png")
