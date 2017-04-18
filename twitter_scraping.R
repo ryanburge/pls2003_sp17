@@ -19,3 +19,60 @@ setup_twitter_oauth(consumer_key=consumerKey, consumer_secret=consumerSecret,
 
 tweets <- searchTwitter("#blessed", n=5000)
 tweets <- twListToDF(tweets)
+
+write.csv(tweets, "blessed.csv")
+
+tweets <- searchTwitter("#yolo", n=5000)
+tweets <- twListToDF(tweets)
+
+write.csv(tweets, "yolo.csv")
+
+tweets <- searchTwitter("libertarian", n=5000)
+tweets <- twListToDF(tweets)
+
+write.csv(tweets, "libertarian.csv")
+
+tweets <- searchTwitter("taxes", n=5000)
+tweets <- twListToDF(tweets)
+
+write.csv(tweets, "taxes.csv")
+
+
+timeline <- userTimeline('realDonaldTrump', n=3200)
+timeline <- twListToDF(timeline)
+
+write.csv(timeline, "trump.csv")
+
+timeline <- userTimeline('chancetherapper', n=3200)
+timeline <- twListToDF(timeline)
+
+write.csv(timeline, "chance.csv")
+
+timeline <- userTimeline('chrissyteigen', n=3200)
+timeline <- twListToDF(timeline)
+
+write.csv(timeline, "teigen.csv")
+
+timeline <- userTimeline('SenSanders', n=3200)
+timeline <- twListToDF(timeline)
+
+write.csv(timeline, "bernie.csv")
+
+timeline <- userTimeline('SpeakerRyan', n=3200)
+timeline <- twListToDF(timeline)
+
+write.csv(timeline, "paulryan.csv")
+
+timeline <- userTimeline('SenWarren', n=3200)
+timeline <- twListToDF(timeline)
+
+write.csv(timeline, "warren.csv")
+
+
+
+
+
+
+
+
+
