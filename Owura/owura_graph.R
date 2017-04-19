@@ -7,6 +7,7 @@ owura <- owura[-(1:24), , drop = FALSE]
 
 owura$value <- as.numeric(owura$value)
 owura$country <- owura$`Country Name`
+owura$`Country Name` <- NULL
 
 
 
