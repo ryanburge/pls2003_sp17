@@ -29,4 +29,5 @@ ggplot(m1, aes(x=variable, y= value, label = CountyName, color = CountyName)) + 
   theme(legend.title = element_blank())
 
 ## This saves it with a nice quality. 
-ggsave(file="all_counties.png", type = "cairo-png")
+## But this plot is so huge it won't even work right. 
+ggsave(file="all_counties.png", width =120, height =120, type = "cairo-png")
