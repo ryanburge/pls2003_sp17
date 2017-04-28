@@ -1,0 +1,114 @@
+---
+title: "Final Assignment"
+author: "YOUR NAME"
+date: "May 3, 2017"
+output: html_document
+---
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidytext)
+library(dplyr)
+library(wordcloud2)
+library(ggplot2)
+library(readr)
+library(car)
+```
+
+```{r message=FALSE, warning=FALSE}
+warren <- read_csv("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/twitter/warren.csv")
+ryan <- read_csv("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/twitter/paulryan.csv")
+```
+
+Exercise 1: 
+
+You have just loaded the Elizabeth Warren and Paul Ryan tweets datasets. 
+
+First, I want you to put each word in the twitter accounts into it's own line. 
+
+Then, do a word count. 
+
+Then, clean up all the "stop words" for each account. 
+
+Then, show me a wordcloud of each. 
+
+```{r message=FALSE, warning=FALSE}
+tidy <- warren %>% unnest_tokens(word, text)
+tidy <- tidy %>% count(word, sort = TRUE)
+tidy <- tidy %>% anti_join(stop_words)
+
+wordcloud2(tidy)
+
+tidy2 <- ryan %>% unnest_tokens(word, text)
+tidy2 <- tidy2 %>% count(word, sort = TRUE)
+tidy2 <- tidy2 %>% anti_join(stop_words)
+
+wordcloud2(tidy2)
+
+
+```
+
+Finally, I want you to do a sentiment score for their overall Twitter accounts. Use the "afinn" lexicon to do so. 
+
+If you do this all in two total lines of code, I will get you 10 additional bonus points. 
+
+Hint: three pipes, mutate, summarize. 
+
+```{r message=FALSE, warning=FALSE}
+tidy %>% inner_join(get_sentiments("afinn")) %>% mutate(total = score *n) %>% summarise(sum = sum(total))
+tidy2 %>% inner_join(get_sentiments("afinn")) %>% mutate(total = score *n) %>% summarise(sum = sum(total))
+```
+
+Who has the more positive account, overall? Paul Ryan or Elizabeth Warren? Why do you think that is?
+
+Exercise 2
+```{r message=FALSE, warning=FALSE}
+prayer <- read_csv("https://raw.githubusercontent.com/ryanburge/prayer_breakfast/master/prayer_breakfast.csv")
+```
+I want you to use ggplot2 to give me a histogram of the most frequently used words in the speech for the Republican and the Democrat. 
+
+Make sure to clean up the stop words first!
+
+```{r message=FALSE, warning=FALSE}
+trump <- prayer[1,]
+obama <- prayer[2,]
+
+
+tidy3 <- trump %>% unnest_tokens(word, text)
+tidy3 <- tidy3 %>% count(word, sort = TRUE)
+tidy3 <- tidy3 %>% anti_join(stop_words)
+
+tidy4 <- obama %>% unnest_tokens(word, text)
+tidy4 <- tidy4 %>% count(word, sort = TRUE)
+tidy4 <- tidy4 %>% anti_join(stop_words)
+
+
+ggplot(tidy3 %>% filter(n >= 7), aes(x=reorder(word, n), y=n)) +geom_col() + coord_flip() + ggtitle("Trumps Words")
+
+ggplot(tidy4 %>% filter(n >= 7), aes(x=reorder(word, n), y=n)) +geom_col() + coord_flip() + ggtitle("Obamas Words")
+```
+
+
+Now, I want you to do a sentiment analysis for each of these speeches. 
+
+Use the "bing" lexicon to do so. 
+
+```{r message=FALSE, warning=FALSE}
+tidy3 <- tidy3 %>% inner_join(get_sentiments("bing")) 
+tidy3$score <- Recode(tidy3$sentiment, "'positive' =1; 'negative' = -1")
+
+tidy4 <- tidy4 %>% inner_join(get_sentiments("bing")) 
+tidy4$score <- Recode(tidy4$sentiment, "'positive' =1; 'negative' = -1")
+
+tidy3 %>% mutate(total = n * score) %>% summarise(total = sum(total))
+tidy4 %>% mutate(total = n * score) %>% summarise(total = sum(total))
+
+
+```
+
+Which one was more positive? Why do you think that is? 
+
+
+
+
+
