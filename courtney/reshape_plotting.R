@@ -42,3 +42,20 @@ plot <- m1 %>% group_by(StatePD_District, variable) %>% summarise(total = sum(va
 ggplot(plot, aes(x=variable, y= total, label = StatePD_District, color = StatePD_District)) + geom_line(aes(group = StatePD_District), size=1)
 
 
+
+## Make the Districts Look Better
+p1 <- plot %>% filter(StatePD_District != "3 & 4")
+
+p1$district <- as.numeric(p1$StatePD_District)
+
+ggplot(p1, aes(x=variable, y= total, label = district, color = factor(district))) + geom_line(aes(group = factor(district)), size=1) +
+  theme(legend.position="bottom")  + 
+  theme(legend.title = element_blank())
+
+
+d1 <- courtney %>% filter(StatePD_District =="1")  %>% select(CountyName, `2010`, `2011`)
+
+
+
+
+
