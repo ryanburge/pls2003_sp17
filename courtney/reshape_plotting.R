@@ -31,3 +31,14 @@ ggplot(m1, aes(x=variable, y= value, label = CountyName, color = CountyName)) + 
 ## This saves it with a nice quality. 
 ## But this plot is so huge it won't even work right. 
 ggsave(file="all_counties.png", width =120, height =120, type = "cairo-png")
+
+
+## This plots arrests by PD district and by year
+
+courtney <- read_csv("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/courtney/courtney.csv")
+c1 <- select(courtney, `2010`, `2011`, `2012`, `2013`, `2014`, `2015`, StatePD_District)
+m1 <- melt(c1, id.vars = c("StatePD_District"))
+plot <- m1 %>% group_by(StatePD_District, variable) %>% summarise(total = sum(value))
+ggplot(plot, aes(x=variable, y= total, label = StatePD_District, color = StatePD_District)) + geom_line(aes(group = StatePD_District), size=1)
+
+
