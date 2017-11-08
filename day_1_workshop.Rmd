@@ -1,0 +1,246 @@
+---
+title: "R Workshop Day 1"
+author: "Dr. Ryan Burge "
+date: 2017-09-16T21:13:14-05:00
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(car)
+
+cces <- read_csv("https://raw.githubusercontent.com/ryanburge/cces/master/CCES%20for%20Methods/small_cces.csv")
+```
+## Introduction
+
+Let's start by taking a look at our dataset using the %>% and the glimpse command. You can get a pipe easily by hit CTRL + SHIFT + M. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  glimpse()
+```
+
+Glimpse tells you a lot of stuff. First it tells you how many observations you have. Here you have A LOT: 64,600. And how many variables do you have? 32 variables. You can also see the names of each variable, as well as the top fiften rows of each column. 
+
+All this won't make any sense unless you have the codebook. [That can be found here](https://github.com/ryanburge/cces/raw/master/Codebooks/CCES_2016_Small_Codebook.pdf)
+
+Take a look at the race row. Look in your codebook. That first person our dataset is white, the second is white, and the third is black. Do the same for the gender. 
+
+## The Tabyl Function
+
+One of the most helpful functions to get a simple sense of how many of each race in the dataset is to use the table command. Again, this uses cces and then the pipe. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  tabyl(race)
+```
+
+So, what percentage of the sample is white? Black? Asian? It gives you the actual count, but it also gives you the percentage. How about we visualize that? 
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  ggplot(.,aes(x=race)) + geom_bar()
+```
+
+All that does it just but the race variable into a bar chart. That's also known as a histogram. Sometimes visualizing data can help you understand it better. 
+
+Let's try to visualize the party identification variable. It's called pid7 
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  ggplot(.,aes(x=pid7)) + geom_bar()
+```
+
+You notice something odd here? Why is the x axis (which is the one going left and right) have a little bar way on the right side? Well we can find out why if we just use the tabyl command. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  tabyl(pid7)
+```
+
+Now it makes sense, right? There are some weird values in there. Do you see them. There are people who are coded 98 and 99. Those values are people who don't know or didn't respond. We don't want to plot them, beacuse they make the plot look ugly. So, we can fix that. 
+
+
+## Filter Command
+
+R has a lot of cool functions. One of the most helpful is called filter. It will filter the data based on whatever parameters we have set up. So, how do we use filter to get rid of those 98 and 99 values? It's actually pretty simple. 
+
+If you just hit up, it will bring up a prior command. Hit up until you get back to the ggplot line. And then just magic a small addition of the filter command. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  filter(pid7 < 9) %>% ggplot(.,aes(x=pid7)) + geom_bar()
+```
+
+Do you see what just happened there? We told R to look at the cces data. Then to filter out any values that are greater than 9. And guess what? 98 and 99 are greater than 9. Therefore R will not plot them in your bar graph. 
+
+Let's try to use filter in another way. How about we just look at the party identification of men. Take a look at your codebook. What is the variable for male called? It's called gender, right? And which value is male? Yes, it's value 1. So, let's use that info to plot. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  filter(gender ==1) %>% ggplot(.,aes(x=pid7)) + geom_bar()
+```
+
+It's important that you do == (2 equal signs). But now you have a plot of just males and their party identification. How about adding some colors? And some better labels? 
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  filter(gender ==1) %>%  filter(pid7 < 9) %>% ggplot(.,aes(x=pid7)) + geom_bar(fill = "darkorchid3", color = "black")  + labs(x= "Party Identification", y ="Number of Respondents", title ="Party ID of Males")
+```
+
+## Other Ways to Filter 
+
+Here are just a bunch of ways to filter something
+
+If you want to look at all racial groups but white and the frequency of responses to the question about party ideology. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(race != 1) %>% tabyl(pid7)
+```
+
+But let's say you just wanted to look at black OR hispanic. You would use the `|`, which is just above the enter key. You have to hit shift. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(race == 2 | race == 3) %>% tabyl(pid7)
+```
+
+Let's say you wanted to look at the party ideology of black males. That's the `&` symbol. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(race == 2 & gender ==1) %>% tabyl(pid7)
+```
+
+## Mutate Command
+
+Let's say you want to create a new variable that is the age of the respondent. Check out the codebook. There's a variable called birthyr, let's check that out. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  tabyl(birthyr)
+```
+
+So, what do you see? You see the year that each person was born. But, how do we convert that to age. How? Like this: 
+
+```{r message=FALSE, warning=FALSE}
+cces <- cces %>% mutate(age = 2017 - birthyr)
+```
+
+So, that will give you a new variable called age. That new variable has to be saved however and that is why this begins with "cces <-" that will overwrite the original dataset with a new one that contains our variable we created called age. Let's visualize that. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>% ggplot(.,aes(x=age)) + geom_bar()
+```
+
+You can see that there are a lot of people in their 60s and 70s, and less in their 40s. Let's do something here. Let's visualize the age distribution of both males and females. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% ggplot(.,aes(x=age)) + geom_bar() + facet_grid(.~gender)
+```
+
+Can you figure out what just happened. It is still mapping the distribution of age. But there are two plots (1 and 2). What is 1? What is 2? Well, look at the new addition I made to the command. See that facet_grid command? I told R to plot the age variable for all values of gender. So we can see in our codebook that 1 is male and 2 is female. That's what the plot is showing us. 
+
+
+## Crosstab Command 
+
+One of the most basic, yet important types of analysis we do as social scientists is called a crosstab. That is basically a two way frequency table. If you wanted to take a look at union membership, that's easy to do with the `tabyl` command. Right? 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>% tabyl(union)
+```
+But that just tells us what union membership looks like in the entire sample. But let's say that I'm interested in knowing how union membership varies by each racial group. Well, we could use the `filter` command right? So if you wanted to see what percentage of black people were in a union you could do that like this: 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(race ==1) %>% tabyl(union)
+```
+
+But here's the problem, if I wanted to that relationship for each of the seven racial groups, that's seven lines of code. How about one line of code? 
+
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  crosstab(race, union)
+```
+What you have going down the table is each of the racial groups. 1 is white, 2 is black etc. Then across the columns there each of three response options to the union membership question. So how many Hispanics have never been part of a union? 4138. 
+
+But, what percentage is that? You can add a little extra code and get that easily. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>%  crosstab(race, union) %>% adorn_crosstab(denom = "row")
+```
+So, what percentage of Hispanics have never been in a union? 79.0%. Which racial group has the lowest union membership? Asians. Over 85% have never been in a union. 
+
+## Recode Command
+
+A lot of what social scientists do is to create new variables by recoding old variables. Let's start by creating a dichotomous variable out of the gender variable. We this new variable to be called male and male's will have a value of 1, while everyone else will be coded as zero. 
+
+
+```{r message=FALSE, warning=FALSE}
+cces <- cces %>% mutate(male = recode(gender, "1=1; else=0"))
+cces %>% tabyl(male)
+```
+
+Do you see what happened? Now males are 1 and everyone is zero. 
+
+Let's do something a bit more difficult. Look in your codeboook to a variable called econfuture. You notice how the lower values like 1 are indicating the next year will be a lot better than the previous year and high values are saying that next year will be a lot worse? Doesn't that seem backwards? Shouldn't high values mean greater things and low values mean less? And what about the 6 value which means "unsure" and 8 means "skipped." We need to clean all of that up. 
+
+```{r message=FALSE, warning=FALSE}
+cces <- cces %>% mutate(econ2 = recode(econfuture, "1=5; 2=4; 3=3; 4=2; 5=1; else=99"))
+```
+
+So, we just reverse coded everything. You see how 1 has now become a 5 and so on? But why did we do "else =99"? The answer is this: we wanted to make those weird responses to be weird numbers so we know that when we do some further analysis to make sure we don't plot those values by filtering them out. So, let's filter and visualize. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(econ2 < 10) %>% ggplot(.,aes(x=econ2)) + geom_bar()
+```
+
+How about we visualize that by race? 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(econ2 < 10) %>% ggplot(.,aes(x=econ2)) + geom_bar() + facet_grid(.~race)
+```
+
+We can see now that each race has it's own little bar chart. However, what makes this hard to really interpret is that there are so many more white people in the sample than other races that it distorts the plot. We can do this a different way to see which race is the most optimistic about the future. 
+
+
+## Group By and Summarise
+
+We are going to add two new commands here and they make magic happen. So, we are trying to see how each race feels about their economic future. Here's how we do that. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% group_by(race) %>% summarise(avg = mean(econ2))
+```
+
+Okay, this is not right though. You want to guess why? It's because we have some 99's that we coded in there. We need to get rid of those. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(econ2 < 10) %>% group_by(race) %>% summarise(avg = mean(econ2))
+```
+
+Which racial group is most optimistic about their future? It's the one with the highest "avg" score. And in this case that's those who marked the "other" race box. Which is the lowest? It's those of mixed race. Let's try one more. Let's do education. 
+
+```{r message=FALSE, warning=FALSE}
+cces %>% filter(econ2 < 10) %>% group_by(educ) %>% summarise(avg = mean(econ2))
+```
+What do you see here? It's actually an interesting pattern. As one goes from lower levels of education to higher levels of education the overall optimism goes up. That makes intuitive sense, right? The more education you have, the more you think that your future is going to be better. 
+
+HOw do we visualize that? Well, it gets a little tricky. First, you need to realize that you have just created a new dataset. It has two columns. One is educ and the other is avg. So let's save that new dataset. Here's how. 
+
+
+```{r message=FALSE, warning=FALSE}
+plot <- cces %>% filter(econ2 < 10) %>% group_by(educ) %>% summarise(avg = mean(econ2))
+```
+
+Now we have a new dataset called plot that we can use to actually make a visualization. Here's the structure for that: 
+
+
+```{r message=FALSE, warning=FALSE}
+plot %>% ggplot(.,aes(x=educ, y=avg)) + geom_col()
+```
+
+
+## Conclusion
+
+These are just a handful of things that R can do. It's capabilities are literally endless. Later in the semester I will be giving you two assignments that will require the use of statistical software to complete. You will use the commands I taught you here. Let me know if you have questions or comments about this tutorial. 

@@ -1,0 +1,371 @@
+---
+title: "Workshop Day 2"
+author: "Dr. Ryan Burge"
+date: "November 6, 2017"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+
+---
+
+## Introduction
+
+Let's load some packages 
+
+```{r warning = FALSE, message=FALSE}
+library(tidyverse)
+library(car)
+library(dotwhisker)
+```
+
+## Mean and Median
+
+One of the most basic principles of doing data analysis sounds straightforward, but it's not. I know that most of our high school math teachers taught us about the average (which is also the mean). That's how we calculate our grades for our courses, figure out how much we typically make it income each month, etc. 
+
+The mean works most of the time. However it doesn't work all the time. 
+
+Here's a key tenet of data analysis: 
+
+Don't lie with data
+
+![](https://i.imgur.com/qxNjpyu.png)
+
+
+A lot of politicans on both sides of the aisle use statistics that don't accurately represent what the data really says. This recent example from Paul Ryan is a perfect illustration of that. 
+
+Any estimate about how much the "average" American will save under any tax plan is highly dependent on whether the analysis considering the mean income or the median income. 
+
+So, what's the difference? 
+
+* Mean - also known as the average. This takes all the values in a dataset and the divides them by the total number of individuals in the dataset. 
+
+* Median - this takes the middle value of a range of values. If there is an even number of observations it finds the mid point between the two middle observations. 
+
+Let's load some data and see what this looks like in the real world. 
+
+```{r warning = FALSE, message=FALSE}
+low <- read_csv("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/salary1.csv")
+high <- read_csv("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/salary2.csv")
+both <- read_csv("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/salary3.csv")
+```
+
+What you have here are three datasets. Let's take a look at each individually. 
+
+```{r warning = FALSE, message=FALSE}
+low
+```
+
+So, we have a 100 individual's names and yearly salaries. Let's find both the mean and median of these 100 salaries. 
+
+```{r warning = FALSE, message=FALSE}
+low %>% summarise(mean = mean(salary), median = median(salary))
+```
+
+So for this example the mean salary is $26,128 and the median salary is $27,551. Those numbers are relatively close to each other. Really either would be an appropriate one to display in an analysis because they accurately describe the distribution of values. 
+
+But, quickly take a look at the second salary dataset: high
+
+```{r warning = FALSE, message=FALSE}
+high
+```
+Notice that these salaries are much higher than the previous salary dataset and that there are only 5 total entries here. So, what happens when we combine the 100 modest salaries from the first datasets with the 5 very high salaries from the second dataset? Well, that's what both does, it combines them together. 
+
+Let's find the mean and the median of this combined dataset. 
+
+
+```{r warning = FALSE, message=FALSE}
+both %>% summarise(mean = mean(salary), median = median(salary))
+```
+Do you see the problem now? Is it *technically* accurate to say that the average salary in the dataset is $2.78 million dollars? Yes, it is. But does that accurately describe the financial position of most of the 105 individuals? No, it does not. 
+
+The median does a much better job of telling the whole story. 
+
+![](https://i.imgur.com/bAFpZXP.png)
+
+
+## Outliers
+
+The issue here is a statistical concept called **outliers**. An outlier is something that is drastically different than the rest of a statistical distribution. It's value is abnormally high or abnormally low. If you want a quick way to figure out if your data has outliers, comparing the mean to the median is a pretty good place to start. 
+
+Notice how in the "low" dataset the mean and the median are close to each other? That means that there are not a lot of outliers. Actually the same is true for the "high" dataset. However when you compare the mean to the median in the combined dataset "both" you see a dramatic difference. In this case you have outliers. You can see if it we visualize it. 
+
+Here's a visualization of that first dataset "low"
+
+```{r warning = FALSE, message=FALSE}
+low %>% ggplot(., aes(x=salary)) + geom_histogram()
+```
+
+Compare that to the combined dataset "both"
+
+```{r warning = FALSE, message=FALSE}
+both %>% ggplot(., aes(x=salary)) + geom_histogram()
+```
+
+You see those five little bars going across the X axis? Those are your outliers. In this situation you must use the median. It's just more accurate. 
+ 
+By the way, this isn't just some theoretical exercise. This is really how income is distributed in the United States
+
+![](https://upload.wikimedia.org/wikipedia/commons/0/0d/Distribution_of_Annual_Household_Income_in_the_United_States_2010.png)
+
+
+
+Those two bars are the far right are pretty tall, that's becaused there are a decent number of Americans who make A LOT of money each year. 
+
+## Standard Deviation
+
+One of the most ubiquitous terms in statistics is standard deviation. It's something that everyone who deals with numbers needs understand. 
+
+Here's a simple definition: 
+
+**standard deviation** - a measure of how spread out numbers are. 
+
+Let's load some data which is just 25000 individual weights and heights.  
+
+```{r warning = FALSE, message=FALSE}
+pop <- read.csv(url("https://raw.githubusercontent.com/ryanburge/pls2003_sp17/master/population.csv"))
+```
+
+Let's visualize the distribution of heights: 
+
+```{r warning = FALSE, message=FALSE}
+pop %>% ggplot(., aes(x=height)) + geom_histogram()
+```
+
+I don't love how blocky that looks, so let's add more bins. 
+
+```{r warning = FALSE, message=FALSE}
+pop %>% ggplot(., aes(x=height)) + geom_histogram(bins = 300)
+```
+
+That looks a lot better, right? 
+
+First, let's figure out if this is a normal distribution. The simplest way to do that is compare the mean and the median. 
+
+
+```{r warning = FALSE, message=FALSE}
+pop %>% summarise(mean = mean(height), median = median(height))
+```
+Because they are almost exactly alike, we can say that this distribution is about as normal as we are going to get. 
+
+Here's that same graph with a red line for the mean. 
+
+```{r warning = FALSE, message=FALSE}
+pop %>% ggplot(., aes(x=height)) + geom_histogram(bins = 300) + geom_vline(xintercept = mean(pop$height), color = "red")
+```
+
+Now, let's calculate the standard deviation. 
+
+
+```{r warning = FALSE, message=FALSE}
+pop %>% summarise(mean = mean(height), sd = sd(height))
+```
+
+So, the standard deviation is 1.9. 
+
+Here's how that works. It's called the 68-95-99 rule. What that means is that:
+
+1. 68% of your sample falls with 1 standard deviation of the mean. 
+2. 95% of your sample falls with 2 standard deviations of the mean.
+2. 99% of your sample falls with 3 standard deviations of the mean.
+
+So what does that mean in our example? To figure out one standard deviation just take the mean and add one standard deviation. Then, take the mean and subtract one standard deviations. 
+
+For us, here's the math: 67.99-1.9= 66.09 and 67.99+1.9 = 69.89. So that means 68% of our respondents are between 66.09 inches and 69.89 inches tall. Let's visualize. 
+
+
+```{r warning = FALSE, message=FALSE}
+pop %>% ggplot(., aes(x=height)) + geom_histogram(bins = 300) + geom_vline(xintercept = mean(pop$height), color = "red") + geom_vline(xintercept = (mean(pop$height)+ sd(pop$height)), color = "blue") + geom_vline(xintercept = (mean(pop$height)- sd(pop$height)), color = "blue")
+```
+
+So, what about two standard deviations and three standard deviations? 
+
+Two standard deviations are between 64.19 and 71.79.
+Three standard deviations are between 62.29 and 73.69
+
+
+```{r warning = FALSE, message=FALSE}
+pop %>% ggplot(., aes(x=height)) + geom_histogram(bins = 300) + geom_vline(xintercept = mean(pop$height), color = "red") + geom_vline(xintercept = (mean(pop$height)+ sd(pop$height)), color = "blue") + geom_vline(xintercept = (mean(pop$height)- sd(pop$height)), color = "blue") + geom_vline(xintercept = (mean(pop$height)+ (sd(pop$height)*2)), color = "green") + geom_vline(xintercept = (mean(pop$height)- (sd(pop$height)*2)), color = "green") +  geom_vline(xintercept = (mean(pop$height)+ (sd(pop$height)*3)), color = "purple") + geom_vline(xintercept = (mean(pop$height)- (sd(pop$height)*3)), color = "purple")
+```
+
+The blue represents one standard deviation. The green is two standard deviations. The purple is three standard deviations. 
+
+To be precise we should see that 99.7% of our data falls within three standard deviations of the mean. So, is that the case here? We need to figure out how many people are shorter than 62.29 inches and how many are taller than 73.69 inches. Let's just use filters to figure it out. 
+
+```{r warning = FALSE, message=FALSE}
+pop %>% filter(height > 73.69 | height < 62.29)
+```
+
+So we have 51 people! That's out of a sample of 25,000. 
+
+```{r warning = FALSE, message=FALSE}
+51/25000
+```
+That's .2%, which is very close to the .3% that we should see. Not bad for grabbing some random data. 
+
+Here's a handy graphic to help: 
+
+![](https://image.slidesharecdn.com/class2-151120135852-lva1-app6892/95/introduction-to-data-visualization-12-638.jpg?cb=1448027968)
+
+## Confidence Intervals
+
+When you see a poll result on a newscast or a website, you need to carefully assess what the numbers are. Here's a good example
+
+![](http://www.elon.edu/images/e-web/elonpoll/Ahead.jpg)
+
+A quick glance at these numbers from 2012 indicate that Romney was ahead of Obama in North Carolina. However, take a look at the fine print in the bottom right. It says, "+/- 3%."
+That's usually called the "margin of error" or sometimes the "MoE." In reality here's what you have:
+
+1. Romney's actual support could be as high as 50% or as low as 44%. 
+2. Obama's actual support could be as high as 46% or as low as 40%. 
+
+You know what that means? The race is a statistical deadheat in North Carolina. 
+
+We call that margin of error a 95% confidence interval. Remember our discussion of standard deviation? Yes that means we are including values that are about two standard deviations from the mean. Here's a simple visualization of that concept: 
+
+![](http://static4.businessinsider.com/image/579fc54b4321f122008bc595-1200/confidence-intervals.png)
+
+
+The dots stand for the actual reported percentage. Here it's Clinton 42% and Trump at 43%. But see the horizontal lines? Those represent the confidence intervals. In very simple statistically simple terms we are 95% confident that Clinton's actual percentage is on her blue line somewhere and the same for Trump's red line. That means this race is a dead heat as well. 
+
+Anytime we calculate using `group_by` and `summarise` in R, we need to include the confidence intervals so that we can determine if there is an actual statistical difference in the means of something. 
+
+Let's return to that CCES data that we used previously. 
+
+
+```{r warning = FALSE, message=FALSE}
+cces <- read_csv("https://raw.githubusercontent.com/ryanburge/cces/master/CCES%20for%20Methods/small_cces.csv")
+```
+
+[Codebook's here](https://github.com/ryanburge/cces/raw/master/Codebooks/CCES_2016_Small_Codebook.pdf)
+
+Let's say I wanted to take a look at the mean party identification for each of the racial groups in the CCES. You should know how to do that!
+
+
+
+```{r warning = FALSE, message=FALSE}
+cces %>% filter(pid7 <8) %>% group_by(race) %>% summarise(mean = mean(pid7))
+```
+
+Recall that 1 is "Strong Democrat", 4 is "Indepedent", 7 is "Strong Republican". Which group is the most liberal? It's African Americans, right? Well is that statistically significant? We can figure that out. 
+
+
+```{r warning = FALSE, message=FALSE}
+plot <- cces %>% filter(pid7 <8) %>% group_by(race) %>% summarise(mean = mean(pid7),
+            sd = sd(attend), 
+            n = n()) %>% 
+  mutate(se = sd/sqrt(n),
+         lower = mean - qt(1 - (0.05 /2),  n -1) * se,
+         upper = mean + qt(1 - (0.05 /2),  n -1) * se) 
+```
+
+You will notice that I added a *bunch* of syntax here. You don't need to know really what all of it does. However what you do need to know is how to interpret a confidence interval. Let's take a look at our results. 
+
+```{r warning = FALSE, message=FALSE}
+plot
+```
+
+If you look way over to the right you will see "lower" and "upper". Can you guess what those are? Those are the top and bottom ends of your confidence intervals. So for African Americans, the mean pid is 1.98. It could be as low as 1.94 or as high as 2.02.
+
+You want to visualize that? Of course you do!
+
+
+```{r warning = FALSE, message=FALSE}
+plot %>% 
+  ggplot(., aes(x=mean, y= race)) + geom_point() +  
+  geom_errorbarh(aes(xmin = lower, xmax=upper))
+```
+
+There's a bunch of stuff to take note of here. 
+
+1. Take a look at how wide some of confidence intervals are and how narrow they are for other groups. The smallest CIs are for white respondents. You want to guess why? That's because there are nearly 45,000 of them. But look how wide they are for group 8 which is "other." That's because there are only 129 of them. It's a mathematical fact- the larger the group; the smaller the CIs. 
+
+![](https://upload.wikimedia.org/wikipedia/commons/1/1d/Marginoferror95.PNG)
+
+
+
+
+2. You always need to look vertically when comparing means like this. Here's what I mean. Compare white respondents (Number 1) to Native American respondents (Number 5). If you just plotted the PID without CIs you would say that Native Americans are more conservative politically. But once you add the confidence intervals you see that they are not statistically different. 
+
+
+## Correlation
+
+Correlation is an important component of social science. It's a simplified way of describe how two variables relate to each other. If variable 1 goes up does variable 2 go up as well? Or does it go down? We express correlation on a scale from -1 to 1. Obviously positive values mean a positive correlation and negative values equal a negative one. 
+
+Here's how to interpret that: 
+
+![](https://ryanburge.github.io/figs/tutorial/corr.png)
+
+So, let's dig into some data. 
+
+`mtcars` is a dataset that comes preloaded with R. 
+
+
+```{r warning = FALSE, message=FALSE}
+mtcars %>% glimpse()
+```
+
+It's just a bunch of data about cars. Their weight, gas mileage, engine size, etc. A good starting place would be to see how the weight of a car and it's gas mileage are related. Here's how to calculate a correlation using the `summarise` function. 
+
+
+```{r warning = FALSE, message=FALSE}
+mtcars %>% summarise(cor(wt, mpg))
+```
+
+You can see that there's pretty negative correlation with a coefficient of -.87. What that really means is that the slope of the line between the points -.87. Remember that slope is rise over run. Let's visualize it. 
+
+```{r warning = FALSE, message=FALSE}
+mtcars %>% ggplot(.,aes(x=wt, y=mpg)) + geom_point()
+```
+
+You can almost see it, right? If you were to draw a line between the points what would that line look like? Yes, it would slope downhill. It would be high on the left and low on the right. That makes intuitive sense. The more a car weighs, the less efficient it is in gas mileage. Let's go ahead and draw that line. Here's the command. 
+
+
+```{r warning = FALSE, message=FALSE}
+mtcars %>% ggplot(.,aes(x=wt, y=mpg)) + geom_point() + geom_smooth(method = lm)
+```
+
+You can see that the blue line is downhill, just like we thought. And the darkened areas are 95% confidence intervals. Do you notice how they are pretty tightly packed around the blue line in the center and then "bell out" when you get to do the bottom right? That's because we have fewer cases out there. Just like we talked about with 95% confidence intervals: the more cases you have, the lower level of uncertainty. You can see that happening right here. 
+
+Here's a neat little addition you can make: how about comparing automatic transmissions to manual transmissions? There's a variable in the dataset called "am" with 1 being manual and 0 being automatic. Let's do it with `summarise` and then let's visualize. 
+
+
+
+```{r warning = FALSE, message=FALSE}
+mtcars %>% group_by(am) %>% summarise(cor(wt, mpg))
+```
+
+You can see that both still have a negative correlation, but that downside slope is steeper for manual transmissions. Let's visualize: 
+
+
+```{r warning = FALSE, message=FALSE}
+mtcars %>% ggplot(.,aes(x=wt, y=mpg, color= as.factor(am))) + geom_point() + geom_smooth(method = lm)
+```
+
+Can you tell which line is for manuals and which is for automatics? The steeper line (on the left) is manuals and the right is automatics. I've added a simple legend to make it easier, as well. 
+
+But, we must always consider this simple fact: correlation does not equal causation. 
+
+Some examples: 
+
+![](http://blog.sciencegeekgirl.com/wp-content/uploads/2009/03/pirates.jpg)
+
+
+
+![](http://www.daviddrury.com/wp-content/uploads/2013/01/Screen-Shot-2013-01-02-at-7.07.04-AM.png)
+
+You can't just run correlation models left and right and look for some type of relationship. There needs to be some type of theoretical basis between the two ideas. 
+
+Take this, for example: 
+
+![](http://capenet.org/Images/ELS2002.jpg)
+
+The data is clearly trying to sell a narrative. If you send your kid to private school he or she is much more likely to graduate from a 4 year university in a timely manner. Whoever put this together wants you to be believe that there is something inherent in a private school education that makes your more college ready. 
+
+But this data doesn't control for a really important factor: 
+
+![](http://s.thestreet.com/files/tsc/v2008/photos/contrib/uploads/80721bb7-cd48-11e6-b490-0f437cfe09ba.png)
+
+Not many poor kids go to private school. And maybe it's not the fact that private school is better than public, it's the fact that rich kids are more likely to graduate college than poor kids are. We would need to control for income to determine any real relationship. 
+
+## Regression 
